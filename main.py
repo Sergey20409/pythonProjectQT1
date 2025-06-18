@@ -61,8 +61,8 @@ class Window(QtWidgets.QWidget,Ui_widget):
 
         with open("Record.json", "w", encoding="utf-8") as f:
             json.dump({"Заметка": self.plainTextEdit.toPlainText(),
-                       "Дата создания": self.QDate.currentDate().text,
-                       "Дата выполнения": self.dateEdit.setDate.text(),
+                       "Дата создания": QDate.currentDate().toString('dd-MM-yyyy'),
+                       "Дата выполнения": self.calendarWidget.selectedDate().toString('dd-MM-yyyy'),
                        }, f, ensure_ascii=False, indent=5)
         # print (self.plainTextEdit.toPlainText())
         # print(QDate.currentDate().toString('dd-MM-yyyy'))
