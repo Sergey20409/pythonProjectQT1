@@ -136,6 +136,11 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <string>Дата выполнения</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Осталось дней</string>
+       </property>
+      </column>
      </widget>
     </item>
     <item row="4" column="0">

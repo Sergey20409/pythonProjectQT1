@@ -14,7 +14,7 @@ class Window(QtWidgets.QWidget,Ui_widget):
         self.pushButton = QPushButton('Записать в JSON')
         self.pushButton_5 = QPushButton('Загрузить из JSON')
         self.pushButton_3 = QPushButton('Установить в таблицу')
-        self.pushButton_Del = QPushButton('Удалить таблицу')
+        self.pushButton_Del = QPushButton('Удалить строку')
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -39,18 +39,19 @@ class Window(QtWidgets.QWidget,Ui_widget):
         self.pushButton_Del.clicked.connect(self.onPushButton_DelClicked)
 
     def onCalendar(self): # Делаем чтобы выбранная дата в листе календаря появлялась в числовом показометре слева
-        global star_date, calc_date
+        global start_date, calc_date
         self.dateEdit.setDate(self.calendarWidget.selectedDate())
         start_date = QDate.currentDate()
         calc_date = self.calendarWidget.selectedDate()
 
     def on_dateEdit_Change(self):# Наоборот - чтобы выбранная дата в показометре появлялась в листике календарика
-        global star_date, calc_date
+        global delta_days
 
         self.calendarWidget.setSelectedDate(self.dateEdit.date())
         start_date = QDate.currentDate()
         calc_date = self.dateEdit.date()
         delta_days = start_date.daysTo(calc_date)
+
         if delta_days < 0:
             self.label.setText("Время исполнения прошло %s дней назад" % abs(delta_days))
         else:
@@ -69,7 +70,15 @@ class Window(QtWidgets.QWidget,Ui_widget):
 
     def onPushButton_3Clicked(self):  # Нажимаем для переноса дат в таблицу
 
-        if isinstance(self.tableWidget, QTableWidget):
+        self.calendarWidget.setSelectedDate(self.dateEdit.date())
+        start_date = QDate.currentDate()
+        calc_date = self.dateEdit.date()
+        delta_days = start_date.daysTo(calc_date)
+
+
+        table = self.tableWidget  # ваш QTableWidget
+
+        if table.rowCount() <= 0:
             QMessageBox.warning(self, 'Ошибка',
                                 'Добавьте новые строки с помощью кнопки "Добавить новую строку".')
 
@@ -84,12 +93,12 @@ class Window(QtWidgets.QWidget,Ui_widget):
             if row < self.tableWidget.rowCount():
                 self.tableWidget.setItem(row, 1, QTableWidgetItem(QDate.currentDate().toString('dd-MM-yyyy')))
                 self.tableWidget.setItem(row, 2, QTableWidgetItem(self.calendarWidget.selectedDate().toString('dd-MM-yyyy')))
-
+                self.tableWidget.setItem(row, 3, delta_days)
 
 
         # print(QDate.currentDate().toString('dd-MM-yyyy'))
         # print(self.calendarWidget.selectedDate().toString('dd-MM-yyyy'))
-
+        # print(delta_days)
 
     def onPushButtonClicked(self): # Сохраняем в файл
         data = []
@@ -98,7 +107,8 @@ class Window(QtWidgets.QWidget,Ui_widget):
             row_data = {
                 'list': self.tableWidget.item(row, 0).text(),
                 'BornDay': self.tableWidget.item(row, 1).text(),
-                'FinalDay': self.tableWidget.item(row, 2).text()
+                'FinalDay': self.tableWidget.item(row, 2).text(),
+                'DeadLine': self.tableWidget.item(row, 3).text()
             }
             data.append(row_data)
 
@@ -139,7 +149,7 @@ class Window(QtWidgets.QWidget,Ui_widget):
                     self.tableWidget.setItem(row_position, 0, QTableWidgetItem(row_data.get('list', '')))
                     self.tableWidget.setItem(row_position, 1, QTableWidgetItem(str(row_data.get('BornDay', ''))))
                     self.tableWidget.setItem(row_position, 2, QTableWidgetItem(str(row_data.get('FinalDay', ''))))
-
+                    self.tableWidget.setItem(row_position, 3, QTableWidgetItem(str(row_data.get('DeadLine', ''))))
 
     def onPushButton_2Clicked(self):  # Обнуляем дату на текущую
         self.Current_Date()
