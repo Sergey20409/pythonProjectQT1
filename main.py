@@ -6,6 +6,8 @@ from PySide6.QtGui import QColor, QBrush, QPen, QFont
 from note import Ui_widget
 from PySide6 import QtWidgets, QtCore
 import json
+import datetime
+
 
 class Window(QtWidgets.QWidget,Ui_widget):
 
@@ -53,9 +55,9 @@ class Window(QtWidgets.QWidget,Ui_widget):
         delta_days = start_date.daysTo(calc_date)
 
         if delta_days < 0:
-            self.label.setText("Время исполнения прошло %s дней назад" % abs(delta_days))
+            self.label.setText("Время исполнения прошло \n%s дней назад" % abs(delta_days))
         else:
-            self.label.setText("До времени выполнения осталось %s дней" % delta_days)
+            self.label.setText("До времени выполнения осталось \n%s дней" % delta_days)
 
     # def onPushButtonClicked(self):
         # print(QDate.currentDate().toString('dd-MM-yyyy'))
@@ -93,7 +95,7 @@ class Window(QtWidgets.QWidget,Ui_widget):
             if row < self.tableWidget.rowCount():
                 self.tableWidget.setItem(row, 1, QTableWidgetItem(QDate.currentDate().toString('dd-MM-yyyy')))
                 self.tableWidget.setItem(row, 2, QTableWidgetItem(self.calendarWidget.selectedDate().toString('dd-MM-yyyy')))
-                self.tableWidget.setItem(row, 3, delta_days)
+                self.tableWidget.setItem(row, 3, QTableWidgetItem(str(delta_days)))
 
 
         # print(QDate.currentDate().toString('dd-MM-yyyy'))
@@ -149,7 +151,8 @@ class Window(QtWidgets.QWidget,Ui_widget):
                     self.tableWidget.setItem(row_position, 0, QTableWidgetItem(row_data.get('list', '')))
                     self.tableWidget.setItem(row_position, 1, QTableWidgetItem(str(row_data.get('BornDay', ''))))
                     self.tableWidget.setItem(row_position, 2, QTableWidgetItem(str(row_data.get('FinalDay', ''))))
-                    self.tableWidget.setItem(row_position, 3, QTableWidgetItem(str(row_data.get('DeadLine', ''))))
+                    delta = (datetime.datetime.strptime(row_data.get('FinalDay'), "%d-%m-%Y") - datetime.datetime.now()).days
+                    self.tableWidget.setItem(row_position, 3, QTableWidgetItem(str(delta + 1)))
 
     def onPushButton_2Clicked(self):  # Обнуляем дату на текущую
         self.Current_Date()
@@ -170,221 +173,3 @@ if __name__ == '__main__':
     window.show()
 
     app.exec()
-
-
-
-
-#
-# class TableWidgetExample(QMainWindow):
-#     def __init__(self):
-#         super().__init__()
-#         self.initUI()
-#         self.Window = Window
-#
-#     def initUI(self):
-#         self.setWindowTitle('Заметка и даты')
-#         self.setGeometry(100, 100, 600, 400)
-#
-#         # Создаем таблицу
-#         self.table = QTableWidget()
-#         self.table.setColumnCount(3)
-#         self.table.setHorizontalHeaderLabels(['Заметка', 'Дата создания', 'Дата выполнения'])
-#
-#         # Кнопки для управления
-#         self.add_btn = QPushButton('Добавить строку')
-#         self.add_btn.clicked.connect(self.add_row)
-#
-#         self.save_btn = QPushButton('Сохранить в JSON')
-#         self.save_btn.clicked.connect(self.save_to_json)
-#
-#         self.load_btn = QPushButton('Загрузить из JSON')
-#         self.load_btn.clicked.connect(self.load_from_json)
-#
-#         # Размещаем элементы
-#         layout = QVBoxLayout()
-#         layout.addWidget(self.table)
-#         layout.addWidget(self.add_btn)
-#         layout.addWidget(self.save_btn)
-#         layout.addWidget(self.load_btn)
-#
-#         container = QWidget()
-#         container.setLayout(layout)
-#         self.setCentralWidget(container)
-#
-#
-#     def add_row(self):
-#         """Добавляет новую строку в таблицу"""
-#         row_position = self.table.rowCount()
-#         self.table.insertRow(row_position)
-
-
-
-        # Устанавливаем значения по умолчанию
-        # self.table.setItem(row_position, 0, QTableWidgetItem("Новая заметка"))
-        # self.table.setItem(row_position, 1, QTableWidgetItem("Дата создания"))
-        # self.table.setItem(row_position, 2, QTableWidgetItem("Дата выполнения"))
-    #
-    # def save_to_json(self):
-    #     """Сохраняет данные таблицы в JSON файл"""
-    #     data = []
-    #
-    #     # Собираем данные из таблицы
-    #     for row in range(self.table.rowCount()):
-    #         row_data = {
-    #             'list': self.table.item(row, 0).text(),
-    #             'BornDay': self.Window.QDate.currentDate().toString('dd-MM-yyyy').table.item(row, 1),
-    #             'FinalDay': self.Window.calendarWidget.selectedDate().toString('dd-MM-yyyy')
-    #         }
-    #         data.append(row_data)
-    #
-    #     # Запрашиваем путь для сохранения
-    #     file_path, _ = QFileDialog.getSaveFileName(
-    #         self, 'Сохранить файл', '', 'JSON Files (*.json)')
-    #
-    #     if file_path:
-    #         # Сохраняем в файл
-    #         with open(file_path, 'w', encoding='utf-8') as f:
-    #             json.dump(data, f, ensure_ascii=False, indent=4)
-    #
-    # def load_from_json(self):
-    #     """Загружает данные из JSON файла в таблицу"""
-    #     # Запрашиваем путь к файлу
-    #     file_path, _ = QFileDialog.getOpenFileName(
-    #         self, 'Открыть файл', '', 'JSON Files (*.json)')
-    #
-    #     if file_path:
-    #         # Очищаем таблицу
-    #         self.table.setRowCount(0)
-    #
-    #         # Загружаем данные из файла
-    #         with open(file_path, 'r', encoding='utf-8') as f:
-    #             data = json.load(f)
-    #
-    #             # Заполняем таблицу
-    #             for row_data in data:
-    #                 row_position = self.table.rowCount()
-    #                 self.table.insertRow(row_position)
-    #
-    #                 self.table.setItem(row_position, 0,
-    #                                    QTableWidgetItem(row_data.get('list', '')))
-    #                 self.table.setItem(row_position, 1,
-    #                                    QTableWidgetItem(str(row_data.get('bornday', ''))))
-    #                 self.table.setItem(row_position, 2,
-    #                                    QTableWidgetItem(row_data.get('finalday', '')))
-
-
-
-
-
-
-
-    # print (self.plainTextEdit.toPlainText())
-    # print(self.dateEdit.dateTime().toString('dd-MM-yyyy'))
-    # print(self.calendarWidget.selectedDate().toString('dd-MM-yyyy'))
-    # date = QDate(2022, 9, 17)
-    # self.calendarWidget.setSelectedDate(date)
-
-
-    # def save_textedit_content(textEdit):
-    #     with open("widget_textedit.json", "w") as f:
-    #         json.dump({"content": textEdit.toPlainText()}, f)
-
-    # def load_textedit_content(textEdit):
-    #     try:
-    #         with open("widget_textedit.json", "r") as f:
-    #             data = json.load(f)
-    #             textEdit.setPlainText(data.get("content", ""))
-    #     except FileNotFoundError:
-    #         pass
-
-
-
-# class NewWindow(QWidget):
-#     def __init__(self):
-#         super().__init__()
-#
-#         self.setWindowTitle("Новое окно")
-#         self.setGeometry(200, 200, 300, 200)
-#
-#         # Добавляем какой-нибудь виджет в новое окно
-#         label = QLabel("Это новое окно!")
-#         layout = QVBoxLayout()
-#         layout.addWidget(label)
-#         self.setLayout(layout)
-
-    # def open_new_window(self):
-    #     # Создаем и показываем новое окно
-    #     self.new_window = TableWidgetExample()
-    #     self.new_window.show()
-
-
-        # Создаем layout и добавляем кнопку
-        # layout = QVBoxLayout()
-        # layout.addWidget(self.pushButton)
-# self.pushButton.clicked.connect(self.open_new_window)
-# with open("Record.json", "w", encoding="utf-8") as f:
-#     json.dump({"Заметка": self.plainTextEdit.toPlainText(),
-#                "Дата создания": QDate.currentDate().toString('dd-MM-yyyy'),
-#                "Дата выполнения": self.calendarWidget.selectedDate().toString('dd-MM-yyyy'),
-#                }, f, ensure_ascii=False, indent=5)
-
-
-    # def add_row(self):
-    #     """Добавляет новую строку в таблицу"""
-    #     row_position = self.tableWidget.rowCount()
-    #     self.tableWidget.insertRow(row_position)
-
-
-
-        # Устанавливаем значения по умолчанию
-        # self.tableWidget.setItem(row_position, 0, QTableWidgetItem("Новая заметка"))
-        # self.tableWidget.setItem(row_position, 1, QTableWidgetItem("Дата создания"))
-        # self.tableWidget.setItem(row_position, 2, QTableWidgetItem("Дата выполнения"))
-    #
-    # def save_to_json(self):
-    #     """Сохраняет данные таблицы в JSON файл"""
-    #     data = []
-    #
-    #     # Собираем данные из таблицы
-    #     for row in range(self.tableWidget.rowCount()):
-    #         row_data = {
-    #             'list': self.tableWidget.item(row, 0).text(),
-    #             'BornDay': self.tableWidget.item(row, 1).text(),
-    #             'FinalDay': self.tableWidget.item(row, 2).text()
-    #         }
-    #         data.append(row_data)
-    #
-    #     # Запрашиваем путь для сохранения
-    #     file_path, _ = QFileDialog.getSaveFileName(
-    #         self, 'Сохранить файл', '', 'JSON Files (*.json)')
-    #
-    #     if file_path:
-    #         # Сохраняем в файл
-    #         with open(file_path, 'w', encoding='utf-8') as f:
-    #             json.dump(data, f, ensure_ascii=False, indent=4)
-
-    # def load_from_json(self):
-    #     """Загружает данные из JSON файла в таблицу"""
-    #     # Запрашиваем путь к файлу
-    #     file_path, _ = QFileDialog.getOpenFileName(
-    #         self, 'Открыть файл', '', 'JSON Files (*.json)')
-    #
-    #     if file_path:
-    #         # Очищаем таблицу
-    #         self.tableWidget.setRowCount(0)
-    #
-    #         # Загружаем данные из файла
-    #         with open(file_path, 'r', encoding='utf-8') as f:
-    #             data = json.load(f)
-    #
-    #             # Заполняем таблицу
-    #             for row_data in data:
-    #                 row_position = self.tableWidget.rowCount()
-    #                 self.tableWidget.insertRow(row_position)
-    #
-    #                 self.tableWidget.setItem(row_position, 0,
-    #                                    QTableWidgetItem(row_data.get('list', '')))
-    #                 self.tableWidget.setItem(row_position, 1,
-    #                                    QTableWidgetItem(str(row_data.get('bornday', ''))))
-    #                 self.tableWidget.setItem(row_position, 2,
-    #                                    QTableWidgetItem(row_data.get('finalday', '')))
